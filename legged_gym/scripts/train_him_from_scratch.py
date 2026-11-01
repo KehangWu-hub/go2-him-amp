@@ -24,8 +24,8 @@ def main():
     parser=argparse.ArgumentParser(add_help=False)
     parser.add_argument('--run-dir',type=Path,required=True)
     parser.add_argument('--background',action='store_true')
-    profiles = {'direct': 'go2_him_retrain', 'upstream-flat': 'go2_him_upstream_flat',
-                'candidate-flat': 'go2_him_candidate_flat', 'candidate-rough': 'go2_him_candidate_rough'}
+    profiles = {'flat-bounded': 'go2_him_flat_bounded', 'direct': 'go2_him_retrain', 'upstream-flat': 'go2_him_upstream_flat',
+                'flat-quality': 'go2_him_flat_quality', 'candidate-flat': 'go2_him_candidate_flat', 'candidate-rough': 'go2_him_candidate_rough'}
     parser.add_argument('--profile',choices=tuple(profiles),default='direct')
     own,remaining=parser.parse_known_args()
     directory=own.run_dir.resolve()
@@ -62,8 +62,13 @@ def main():
     training.seed=cfg.seed
     if args.max_iterations is not None:training.runner.max_iterations=args.max_iterations
     if args.num_envs is not None:cfg.env.num_envs=args.num_envs
-    if own.profile=='direct':
+    if own.profile in ('direct', 'flat-bounded'):
         assert cfg.normalization.clip_actions==training.policy.action_bound==4.
+        if own.profile == 'flat-bounded':
+            assert training.runner.num_steps_per_env == 100
+            assert training.runner.max_iterations == 3000
+            assert training.algorithm.schedule == 'fixed'
+            assert training.runner.policy_class_name == 'BoundedHIMActorCritic'
     else:
         assert training.runner.policy_class_name=='HIMActorCritic'
         assert training.runner.num_steps_per_env==100
@@ -118,7 +123,7 @@ def main():
         'action_bound':getattr(runner.alg.actor_critic,'action_bound',None),
         'training_action_clip':actual_cfg.normalization.clip_actions,
         'training_profile':actual_cfg.training_profile,'joint_target_mode':'direct',
-        'software_motion_limits':False,'target_height_m':.30,'initial_parameter_sha256':initial_hash,
+        'software_motion_limits':False,'target_height_m':actual_cfg.rewards.base_height_target,'initial_parameter_sha256':initial_hash,
         'git_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=str(ROOT),text=True).strip(),
         'torch_version':torch.__version__,'gpu':torch.cuda.get_device_name(0),
         'pid':os.getpid(),'started_at':datetime.now().isoformat()}

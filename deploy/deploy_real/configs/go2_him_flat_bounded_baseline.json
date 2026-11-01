@@ -1,0 +1,10 @@
+{
+  "name": "Go2 HIM 平地有界动作策略",
+  "policy_path": "deploy/pre_train/go2_him_flat_bounded/policy.pt",
+  "config_path": "deploy/deploy_real/configs/go2_him_flat_bounded.yaml",
+  "policy_sha256": "aefab699f7ca4b0618588eba17d7c53c87fb753d52d34b63171959fd146245f9",
+  "config_sha256": "8119c0b8b37a983f888becd7481558a7e87b238a06a26613a0d889e769f88998",
+  "physical_motion_validated": false,
+  "operator_feedback": "用户明确表示满意本次现场效果；不代表全部工况定量验收",
+  "readiness": {}
+}

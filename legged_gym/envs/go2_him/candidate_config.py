@@ -48,3 +48,32 @@ class Go2HIMCandidateFlatCfgPPO(Go2HIMRetrainCfgPPO):
 class Go2HIMCandidateRoughCfgPPO(Go2HIMCandidateFlatCfgPPO):
     class runner(Go2HIMCandidateFlatCfgPPO.runner):
         experiment_name = 'go2_him_candidate_rough'
+
+
+class Go2HIMFlatQualityCfg(Go2HIMCandidateFlatCfg):
+    training_profile = 'go2_him_flat_quality_v1'
+    training_task = 'go2_him_flat_quality'
+
+    class env(Go2HIMCandidateFlatCfg.env):
+        # 4096 x 100 exceeded this workstation GPU during PPO update.
+        num_envs = 2048
+
+    class rewards(Go2HIMCandidateFlatCfg.rewards):
+        soft_dof_pos_limit = .9
+        foot_radius = .022
+        swing_clearance_target = .03
+        class scales(Go2HIMCandidateFlatCfg.rewards.scales):
+            dof_vel = -.001
+            torques = -.0002
+            joint_pos = -.7
+            dof_pos_limits = -10.
+            action_rate = -.03
+            feet_slip = -.2
+            foot_clearance = 0.
+            flat_swing_clearance = -.1
+
+
+class Go2HIMFlatQualityCfgPPO(Go2HIMCandidateFlatCfgPPO):
+    class runner(Go2HIMCandidateFlatCfgPPO.runner):
+        experiment_name = 'go2_him_flat_quality'
+        max_iterations = 3000

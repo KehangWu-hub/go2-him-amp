@@ -11,16 +11,17 @@ export PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}"
 
 ## 训练
 
-使用混合地形训练配置：
+使用平地有界动作训练配置：
 
 ```bash
 python legged_gym/scripts/train_him_from_scratch.py \
-  --profile candidate-rough --run-dir logs/him/my_run \
-  --headless --num_envs 1024 --max_iterations 3000 --seed 42
+  --profile flat-bounded --run-dir logs/him/my_run \
+  --headless --num_envs 2048 --max_iterations 3000 --seed 42
 ```
 
 | 参数 | 作用 |
 |---|---|
+| `--profile flat-bounded` | 平地、有界动作、固定学习率，默认3000轮 |
 | `--profile candidate-rough` | 混合地形与地形课程 |
 | `--profile candidate-flat` | 对应的平地配置 |
 | `--num_envs` | 并行环境数，按显存选择 |
@@ -57,7 +58,7 @@ python legged_gym/scripts/continue_him_training.py \
 
 ```bash
 python -m deploy.deploy_mujoco.deploy_go2 \
-  --config deploy/deploy_mujoco/configs/go2_him_fresh.yaml \
+  --config deploy/deploy_mujoco/configs/go2_him_flat_bounded.yaml \
   --command 0.3 0 0
 ```
 
@@ -65,7 +66,7 @@ python -m deploy.deploy_mujoco.deploy_go2 \
 
 ```bash
 python -m deploy.deploy_mujoco.deploy_go2 \
-  --config deploy/deploy_mujoco/configs/go2_him_fresh.yaml \
+  --config deploy/deploy_mujoco/configs/go2_him_flat_bounded.yaml \
   --policy logs/him/my_run/exported/policies/policy.pt \
   --deploy-config logs/him/my_run/exported/params/deploy.yaml \
   --command 0.3 0 0
@@ -80,8 +81,8 @@ python -m deploy.deploy_mujoco.deploy_go2 \
 选择仓库中的一组HIM配置与模型清单：
 
 ```bash
-HIM_CONFIG=deploy/deploy_real/configs/go2_him_fresh.yaml
-HIM_BASELINE=deploy/deploy_real/configs/go2_him_fresh_baseline.json
+HIM_CONFIG=deploy/deploy_real/configs/go2_him_flat_bounded.yaml
+HIM_BASELINE=deploy/deploy_real/configs/go2_him_flat_bounded_baseline.json
 ```
 
 检查配置与模型，不初始化DDS：

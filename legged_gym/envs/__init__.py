@@ -25,3 +25,11 @@ from .go2_him.candidate_config import (Go2HIMCandidateFlatCfg, Go2HIMCandidateFl
                                       Go2HIMCandidateRoughCfg, Go2HIMCandidateRoughCfgPPO)
 task_registry.register('go2_him_candidate_flat', Go2HIMRetrainRobot, Go2HIMCandidateFlatCfg(), Go2HIMCandidateFlatCfgPPO())
 task_registry.register('go2_him_candidate_rough', Go2HIMRetrainRobot, Go2HIMCandidateRoughCfg(), Go2HIMCandidateRoughCfgPPO())
+
+from .go2_him.candidate_config import Go2HIMFlatQualityCfg, Go2HIMFlatQualityCfgPPO
+from .go2_him.flat_quality_env import Go2HIMFlatQualityRobot
+task_registry.register('go2_him_flat_quality', Go2HIMFlatQualityRobot, Go2HIMFlatQualityCfg(), Go2HIMFlatQualityCfgPPO())
+
+
+from .go2_him.flat_bounded_config import Go2HIMFlatBoundedCfg, Go2HIMFlatBoundedCfgPPO
+task_registry.register('go2_him_flat_bounded', Go2HIMFlatQualityRobot, Go2HIMFlatBoundedCfg(), Go2HIMFlatBoundedCfgPPO())

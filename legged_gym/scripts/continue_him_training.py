@@ -1,5 +1,6 @@
 """Wait for a recorded HIM run, then resume it to an absolute iteration target."""
 import argparse
+import ast
 import copy
 from datetime import datetime
 import hashlib
@@ -41,7 +42,7 @@ def overlay(obj, values):
             setattr(obj, name, value)
 
 
-def worker(source, out, target):
+def worker(source, out, target, resume_iteration=None):
     import isaacgym
     import numpy as np
     import torch
@@ -55,7 +56,7 @@ def worker(source, out, target):
     torch.set_num_threads(1)
     parent = json.loads((source/'manifest.json').read_text())
     progress = json.loads((source/'progress.json').read_text())
-    start = int(progress['iteration'])
+    start = int(progress['iteration']) if resume_iteration is None else resume_iteration
     checkpoint = source/f'model_{start}.pt'
     if target <= start:
         raise ValueError('Target must exceed the source iteration')
@@ -64,7 +65,19 @@ def worker(source, out, target):
     for name, digest in source_hashes.items():
         if name.startswith(('legged_gym/envs/go2_him/', 'third_party/himloco_rsl_rl/')) or name == 'legged_gym/utils/terrain.py':
             if hashlib.sha256((ROOT/name).read_bytes()).hexdigest() != digest:
-                raise ValueError(f'Training source changed: {name}')
+                # Permit only the explicit new default budget on the flat-quality
+                # runner; the saved run configuration is restored below.
+                old = ast.parse((source/'sources'/name).read_text())
+                new = ast.parse((ROOT/name).read_text())
+                def strip_budget(tree):
+                    for node in tree.body:
+                        if isinstance(node, ast.ClassDef) and node.name == 'Go2HIMFlatQualityCfgPPO':
+                            for child in node.body:
+                                if isinstance(child, ast.ClassDef) and child.name == 'runner':
+                                    child.body = [v for v in child.body if not (isinstance(v, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'max_iterations' for t in v.targets))]
+                    return ast.dump(tree, include_attributes=False)
+                if name != 'legged_gym/envs/go2_him/candidate_config.py' or strip_budget(old) != strip_budget(new):
+                    raise ValueError(f'Training source changed: {name}')
     actual = yaml.safe_load((source/'env.yaml').read_text())
     train = yaml.safe_load((source/'train.yaml').read_text())
     train['runner']['max_iterations'] = target
@@ -100,8 +113,9 @@ def worker(source, out, target):
         curriculum_note = 'source_checkpoint_has_no_curriculum_state; original_low_level_initialization'
     (out/'env.yaml').write_text((source/'env.yaml').read_text())
     (out/'train.yaml').write_text(yaml.safe_dump(train, sort_keys=False))
-    shutil.copy2(source/'terrain.json', out/'terrain.json')
-    shutil.copy2(source/'terrain.npz', out/'terrain.npz')
+    for terrain_file in ('terrain.json', 'terrain.npz'):
+        if (source/terrain_file).exists():
+            shutil.copy2(source/terrain_file, out/terrain_file)
     snapshot = out/'sources'
     hashes = {}
     for name in source_hashes:
@@ -123,8 +137,9 @@ def worker(source, out, target):
     original_save = runner.save
     def save(path, infos=None):
         extra = dict(infos or {})
-        extra['terrain_curriculum'] = {'levels': env.terrain_levels.detach().cpu().clone(),
-                                        'types': env.terrain_types.detach().cpu().clone()}
+        if hasattr(env, 'terrain'):
+            extra['terrain_curriculum'] = {'levels': env.terrain_levels.detach().cpu().clone(),
+                                            'types': env.terrain_types.detach().cpu().clone()}
         original_save(path, infos=extra)
     runner.save = save
     runner.save(str(out/f'model_{start}.pt'))
@@ -154,11 +169,15 @@ def worker(source, out, target):
     write(out/'progress.json', progress)
 
 
-def orchestrate(source, out, target):
+def orchestrate(source, out, target, resume_iteration=None):
     plan = {'state':'waiting_for_source', 'source_run':str(source), 'target_iteration':target,
             'pid':os.getpid(), 'hardware_actions':False}
     write(out/'auto_continuation.json', plan)
-    while True:
+    if resume_iteration is not None:
+        state = json.loads((source/'progress.json').read_text())
+        if active(int(state['pid'])) or not (source/f'model_{resume_iteration}.pt').exists():
+            raise ValueError('Explicit recovery requires stopped source and existing checkpoint')
+    while resume_iteration is None:
         if (source/'failure.json').exists():
             raise RuntimeError('Source training failed; no silent fallback to a different checkpoint')
         if (source/'progress.json').exists():
@@ -168,6 +187,8 @@ def orchestrate(source, out, target):
         time.sleep(5)
     command = [sys.executable, str(Path(__file__).resolve()), '--source-run', str(source),
                '--run-dir', str(out), '--target-iteration', str(target), '--worker']
+    if resume_iteration is not None:
+        command += ['--resume-iteration', str(resume_iteration)]
     with (out/'console.log').open('x') as stream:
         process = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=stream,
                                    stderr=subprocess.STDOUT, start_new_session=True)
@@ -194,6 +215,7 @@ def main():
     parser.add_argument('--target-iteration', type=int, required=True)
     parser.add_argument('--background', action='store_true')
     parser.add_argument('--worker', action='store_true')
+    parser.add_argument('--resume-iteration', type=int)
     args = parser.parse_args()
     source, out = args.source_run.resolve(), args.run_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -217,6 +239,8 @@ def main():
                     shutil.move(str(path), str(archive/path.name))
         command = [sys.executable, str(Path(__file__).resolve()), '--source-run', str(source),
                    '--run-dir', str(out), '--target-iteration', str(args.target_iteration)]
+        if args.resume_iteration is not None:
+            command += ['--resume-iteration', str(args.resume_iteration)]
         with (out/'orchestrator.log').open('x') as stream:
             process = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=stream,
                                        stderr=subprocess.STDOUT, start_new_session=True)
@@ -226,9 +250,9 @@ def main():
         return
     try:
         if args.worker:
-            worker(source, out, args.target_iteration)
+            worker(source, out, args.target_iteration, args.resume_iteration)
         else:
-            orchestrate(source, out, args.target_iteration)
+            orchestrate(source, out, args.target_iteration, args.resume_iteration)
     except BaseException as error:
         write(out/('failure.json' if args.worker else 'orchestration_failure.json'),
               {'error':repr(error), 'traceback':traceback.format_exc()})

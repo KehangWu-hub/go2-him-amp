@@ -8,9 +8,9 @@
 |:---:|:---:|:---:|
 | <img src="doc/images/go2-isaacgym.png" alt="Isaac Gym训练环境" width="240" height="180"> | <img src="doc/images/go2-mujoco-preview.png" alt="MuJoCo仿真" width="240" height="180"> | <img src="doc/images/go2-real-preview.jpg" alt="Go2真机" width="240" height="180"> |
 
-**Go2 HIM 真机演示**
+**策略部署真机演示**
 
-![Go2 HIM真机演示](doc/images/go2-real.gif)
+![策略部署真机演示](doc/images/go2-real.gif)
 
 ## 项目能力
 
@@ -51,7 +51,7 @@ export PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}"
 
 ```bash
 python -m deploy.deploy_mujoco.deploy_go2 \
-  --config deploy/deploy_mujoco/configs/go2_him_fresh.yaml \
+  --config deploy/deploy_mujoco/configs/go2_him_flat_bounded.yaml \
   --command 0.3 0 0
 ```
 
@@ -61,11 +61,11 @@ python -m deploy.deploy_mujoco.deploy_go2 \
 
 ```bash
 python legged_gym/scripts/train_him_from_scratch.py \
-  --profile candidate-rough --run-dir logs/him/my_run \
-  --headless --num_envs 1024 --max_iterations 3000 --seed 42
+  --profile flat-bounded --run-dir logs/him/my_run \
+  --headless --num_envs 2048 --max_iterations 3000 --seed 42
 ```
 
-`candidate-rough`使用混合地形；`candidate-flat`使用匹配的平地配置。训练记录和导出文件写入指定的运行目录。其他训练入口、续训和权重替换见[HIM指南](deploy/deploy_real/README_GO2_HIM.zh.md)。
+`flat-bounded`使用平地、有界动作和固定学习率，默认训练3000轮；`candidate-rough`和`candidate-flat`提供其他训练配置。训练记录和导出文件写入指定的运行目录。其他训练入口、续训和权重替换见[HIM指南](deploy/deploy_real/README_GO2_HIM.zh.md)。
 
 ### 真机键盘控制
 
