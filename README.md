@@ -8,9 +8,9 @@
 |:---:|:---:|:---:|
 | <img src="doc/images/go2-isaacgym.png" alt="Isaac Gym训练环境" width="240" height="180"> | <img src="doc/images/go2-mujoco-preview.png" alt="MuJoCo仿真" width="240" height="180"> | <img src="doc/images/go2-real-preview.jpg" alt="Go2真机" width="240" height="180"> |
 
-**Go2 HIM 真机演示**（点击封面查看视频）
+**Go2 HIM 真机演示**
 
-[<img src="doc/images/go2-real-video-cover.jpg" alt="Go2 HIM真机演示视频" width="640">](doc/images/go2-real.mp4)
+![Go2 HIM真机演示](doc/images/go2-real.gif)
 
 ## 项目能力
 
