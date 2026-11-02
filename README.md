@@ -1,4 +1,4 @@
-# Unitree Go2 RL Gym
+# Go2 Locomotion — PPO/HIM训练与真机部署
 
 面向 Unitree Go2 的强化学习运动控制项目，覆盖 **Isaac Gym训练 → MuJoCo仿真 → 真机键盘控制**。支持PPO和HIM两种策略，训练导出的模型与接口参数用于仿真和真机部署。
 

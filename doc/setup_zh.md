@@ -26,8 +26,8 @@
 ## 基础环境
 
 ```bash
-git clone https://github.com/KehangWu-hub/unitree_rl_gym.git
-cd unitree_rl_gym
+git clone https://github.com/KehangWu-hub/go2-locomotion.git
+cd go2-locomotion
 conda create -n unitree-rl python=3.8 -y
 conda activate unitree-rl
 
