@@ -36,8 +36,10 @@ python -m deploy.deploy_real.deploy_real_go2 --check
 只读查看机器人状态：
 
 ```bash
-python -m deploy.deploy_real.deploy_real_go2 eno1 --read-only --duration 5
+python -m deploy.deploy_real.deploy_real_go2 eno1 --read-only
 ```
+
+按Ctrl+C结束只读采集。
 
 ## 首次配置
 

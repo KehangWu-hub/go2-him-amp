@@ -50,7 +50,7 @@ python legged_gym/scripts/continue_him_training.py \
   --target-iteration 5000 --background
 ```
 
-原PPO及基础HIM任务也可通过通用入口运行：`python legged_gym/scripts/train.py --task go2_him --headless`。
+基础HIM任务可通过 `python legged_gym/scripts/train.py --task go2_him --headless` 运行；原PPO使用 `--task go2`。
 
 ## MuJoCo运行
 
@@ -96,8 +96,10 @@ python -m deploy.deploy_real.go2_keyboard \
 
 ```bash
 python -m deploy.deploy_real.deploy_real_go2 eno1 \
-  --config "$HIM_CONFIG" --read-only --duration 5
+  --config "$HIM_CONFIG" --read-only
 ```
+
+按Ctrl+C结束只读采集。
 
 启动键盘控制：
 
@@ -146,6 +148,6 @@ TorchScript包含历史编码器与Actor，输入为 `[batch, 270]`：六帧45�
 
 ## 替换部署权重
 
-HIM部署包包含 `policy.pt`、`deploy.yaml` 和 `provenance.json`。真机使用的完整YAML配置还包括网卡、控制及停止参数；模型包的 `deploy.yaml` 不能直接替代它。
+HIM部署使用配套的 `policy.pt` 和 `deploy.yaml`；[独立权重目录](../../release/go2_him_flat_bounded_3000/README.md)还包含训练断点与实际训练配置。真机使用的完整YAML配置还包括网卡、控制及停止参数；模型包的 `deploy.yaml` 不能直接替代它。
 
 更换权重时，同步更新模型包、真机YAML中的接口字段及匹配的baseline摘要。真机配置中的部署状态字段控制模型是否允许启动。

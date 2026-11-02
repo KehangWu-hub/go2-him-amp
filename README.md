@@ -2,7 +2,7 @@
 
 面向 Unitree Go2 的强化学习运动控制项目，覆盖 **Isaac Gym训练 → MuJoCo仿真 → 真机键盘控制**。支持PPO和HIM两种策略，训练导出的模型与接口参数用于仿真和真机部署。
 
-[安装](doc/setup_zh.md) · [HIM训练与部署](deploy/deploy_real/README_GO2_HIM.zh.md) · [PPO真机控制](deploy/deploy_real/README_GO2.zh.md)
+[安装](doc/setup_zh.md) · [HIM训练与部署](deploy/deploy_real/README_GO2_HIM.zh.md) · [PPO真机控制](deploy/deploy_real/README_GO2.zh.md) · [预训练权重](release/go2_him_flat_bounded_3000/README.md)
 
 | Isaac Gym | MuJoCo | Go2真机 |
 |:---:|:---:|:---:|
@@ -80,7 +80,7 @@ python legged_gym/scripts/train_him_from_scratch.py \
 | C | 受控降低并退出 |
 | Z / Ctrl+C | 阻尼停止并退出 |
 
-HIM默认平移指令为0.30m/s，PPO统一模式前后为0.50m/s、侧移为0.40m/s；指令速度与实际速度分别记录。
+HIM默认平移指令为0.30m/s，PPO统一模式前后为0.50m/s、侧移为0.40m/s；表中速度为指令值，实际运动速度随策略和运行条件变化。
 
 ## 项目结构
 
@@ -92,6 +92,7 @@ deploy/
   deploy_mujoco/     MuJoCo运行、步态测量与评估
   deploy_real/       DDS通信、控制状态机与键盘入口
   pre_train/         部署模型、接口参数与版本记录
+release/             可单独下载的权重与配套参数
 resources/           URDF、MJCF与模型资产
 tests/               训练、仿真和控制逻辑测试
 doc/                 安装说明与项目图片
