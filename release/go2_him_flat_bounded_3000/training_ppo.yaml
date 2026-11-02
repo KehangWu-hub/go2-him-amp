@@ -1,0 +1,40 @@
+algorithm:
+  clip_param: 0.2
+  desired_kl: 0.01
+  entropy_coef: 0.005
+  gamma: 0.99
+  lam: 0.95
+  learning_rate: 0.0003
+  max_grad_norm: 1.0
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  schedule: fixed
+  use_clipped_value_loss: true
+  value_loss_coef: 1.0
+init_member_classes: {}
+policy:
+  action_bound: 4.0
+  activation: elu
+  actor_hidden_dims:
+  - 512
+  - 256
+  - 128
+  critic_hidden_dims:
+  - 512
+  - 256
+  - 128
+  init_noise_std: 0.6
+runner:
+  algorithm_class_name: HIMPPO
+  checkpoint: -1
+  experiment_name: go2_him_flat_bounded
+  load_run: -1
+  max_iterations: 3000
+  num_steps_per_env: 100
+  policy_class_name: BoundedHIMActorCritic
+  resume: false
+  resume_path: null
+  run_name: ''
+  save_interval: 100
+runner_class_name: HIMOnPolicyRunner
+seed: 42
