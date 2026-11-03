@@ -24,7 +24,7 @@
 |:---:|:---:|
 | <img src="doc/images/go2-real.gif" alt="HIM策略真机演示" width="480"> | <img src="doc/images/go2-him-amp-real.gif" alt="HIM+AMP策略真机演示" width="480"> |
 
-HIM+AMP 演示使用平地训练 3000 轮的策略，键盘平移指令为 0.30 m/s。
+HIM+AMP 展示完整的 18.7 秒真机视频，使用平地训练 3000 轮的策略，键盘平移指令为 0.30 m/s。
 
 ## 项目能力
 
