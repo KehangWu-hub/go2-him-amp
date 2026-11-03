@@ -19,14 +19,14 @@ ROOT=Path(__file__).resolve().parents[1]
 
 class HIMDeployTest(unittest.TestCase):
     def test_fresh_commands_have_no_software_motion_clipping(self):
-        config=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        config=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         for command in ([0,0,0],[.3,0,0],[-.3,0,0],[0,.3,0],[0,-.3,0],[.3,0,.3],[.3,0,-.3]):
             np.testing.assert_allclose(config.clip_command(command),command)
         for command in ([-.3,0,.3],[.3,.3,0],[0,.3,.3],[.8,-.6,.9]):
             np.testing.assert_allclose(config.clip_command(command),command)
 
     def test_firmware_only_controller_passes_finite_actions_without_filters(self):
-        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         controller=Go2Controller(cfg,policy=lambda obs:torch.full((1,12),10.),action_step_mode='limit')
         controller.fsm.mode=Go2Mode.POLICY
         state=Go2State(1.,np.array([1.,0,0,0]),np.zeros(3),
@@ -42,7 +42,7 @@ class HIMDeployTest(unittest.TestCase):
         self.assertEqual(controller.step(1.01,state).mode,Go2Mode.DAMPING)
 
     def test_firmware_only_policy_does_not_stop_on_recorded_torque_threshold(self):
-        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         trial=PolicyCheck(cfg,None,policy=lambda obs:torch.zeros((1,12)),forward=True)
         q=cfg.default_joint_pos[cfg.sdk_to_policy]
         state=Go2State(1.,np.array([1.,0,0,0]),np.zeros(3),q,np.zeros(12))
@@ -61,7 +61,7 @@ class HIMDeployTest(unittest.TestCase):
         self.assertEqual(trial.output(8.004,state).mode,Go2Mode.DAMPING)
 
     def test_firmware_only_keyboard_does_not_add_acceleration_or_reversal_limit(self):
-        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         trial=PolicyCheck(cfg,None,policy=lambda obs:torch.zeros((1,12)),forward=True,forward_speed=.4,
                           keyboard=True,keyboard_axis='all',continuous=True,turn_forward_speed=.3)
         trial.started=0.
@@ -74,7 +74,7 @@ class HIMDeployTest(unittest.TestCase):
 
     def test_firmware_only_watchdog_preserves_targets_but_honors_manual_stop(self):
         from deploy.deploy_real.go2_watchdog import CommandGate
-        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         q=cfg.default_joint_pos[cfg.sdk_to_policy]
         state=Go2State(1.,np.array([1.,0,0,0]),np.zeros(3),q,np.full(12,40.))
         target=q+2.5;gate=CommandGate(cfg,2.)
@@ -86,7 +86,7 @@ class HIMDeployTest(unittest.TestCase):
         self.assertEqual(gate.output(1.03,state).mode,Go2Mode.DAMPING)
 
     def setUp(self):
-        self.config=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him.yaml',str(ROOT))
+        self.config=Go2RealConfig.load(ROOT/'tests/fixtures/go2_him_motion_limits.yaml',str(ROOT))
 
     def test_rejects_incompatible_temporal_contract_and_mapping(self):
         for key,value in [('history_order','oldest_first'),('history_length',5),('num_observations',45)]:
@@ -147,13 +147,13 @@ class HIMDeployTest(unittest.TestCase):
                 with self.assertRaises(ValueError):PolicyCheck(self.config,f.name,forward=True)
 
     def test_keyboard_preserves_explicit_him_config(self):
-        path=ROOT/'deploy/deploy_real/configs/go2_him.yaml'
+        path=ROOT/'tests/fixtures/go2_him_motion_limits.yaml'
         args=commission_arguments('all','eno1','new_physical.jsonl',config_path=path)
         self.assertEqual(args[args.index('--config')+1],str(path))
 
     def test_him_zero_cli_uses_safe_action_limit_and_extended_exit(self):
         from unittest.mock import patch
-        path=ROOT/'deploy/deploy_real/configs/go2_him.yaml'
+        path=ROOT/'tests/fixtures/go2_him_motion_limits.yaml'
         args=commission_arguments('zero','eno1','new_stand.jsonl',config_path=path)
         with patch('sys.stdin.isatty',return_value=True):
             parsed=parse_args(args)
@@ -168,12 +168,13 @@ class HIMDeployTest(unittest.TestCase):
 
     def test_zero_launcher_forwards_him_action_limit_to_child(self):
         from deploy.deploy_real import go2_commission as commission
-        path=ROOT/'deploy/deploy_real/configs/go2_him.yaml'
+        path=ROOT/'tests/fixtures/go2_him_motion_limits.yaml'
         argv=commission_arguments('zero','eno1','new_stand.jsonl',config_path=path)
         with patch('sys.stdin.isatty',return_value=True):
             args=parse_args(argv)
         # Stop at process creation: no DDS or physical command can be produced.
-        with patch.object(commission.os.path,'lexists',return_value=False), \
+        with patch.dict(self.config.data, {'hardware_deployment_blocked': False}), \
+             patch.object(commission.os.path,'lexists',return_value=False), \
              patch.object(commission.subprocess,'Popen',side_effect=RuntimeError('launch intercepted')) as launch:
             with self.assertRaisesRegex(RuntimeError,'launch intercepted'):
                 commission.run(args,self.config)

@@ -46,7 +46,7 @@ def evaluate(run, iteration, keys):
         error = float((model.act_inference(history)-torch.jit.load(str(policy))(history)).abs().max())
     if error != 0:
         raise ValueError(f'Checkpoint export mismatch: {error}')
-    data = yaml.safe_load((ROOT/'deploy/deploy_real/configs/go2_him_reward_restore_v2.yaml').read_text())
+    data = yaml.safe_load((ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml').read_text())
     exported = yaml.safe_load((run/'exported/params/deploy.yaml').read_text())
     # Keep the full simulator controller config, overlay the actual training contract.
     for name in ('format_version', 'robot', 'step_dt', 'policy', 'observations', 'actions', 'control',

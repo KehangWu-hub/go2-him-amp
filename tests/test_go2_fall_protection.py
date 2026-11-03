@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class FallProtectionTest(unittest.TestCase):
     def config(self):
-        cfg = Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_reward_restore_v2.yaml', str(ROOT))
+        cfg = Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml', str(ROOT))
         cfg.data['software_motion_limits'] = False
         return cfg
 

@@ -1,6 +1,8 @@
-format_version: 2
+# Offline fixture for legacy motion-limiting and history behavior; uses the current model only for interface checks.
 robot: go2
-step_dt: 0.020000000949949026
+format_version: 2
+policy_path: '{LEGGED_GYM_ROOT_DIR}/deploy/pre_train/go2_him_flat_bounded/policy.pt'
+step_dt: 0.019999999552965164
 policy:
   num_observations: 270
   num_actions: 12
@@ -52,8 +54,6 @@ policy:
   latent_size: 16
   observation_clip: 100.0
   last_action_semantics: previous_clipped_policy_action
-  action_distribution: scaled_tanh_normal
-  action_bound: 4.0
 observations:
 - name: velocity_commands
   size: 3
@@ -79,7 +79,7 @@ observations:
 actions:
   type: joint_position
   scale: 0.25
-  clip: 4.0
+  clip: 100.0
   default_joint_pos:
   - 0.10000000149011612
   - 0.800000011920929
@@ -133,21 +133,105 @@ control:
   - 23.700000762939453
   - 23.700000762939453
   - 35.54999923706055
+dds:
+  domain_id: 0
+  lowcmd_topic: rt/lowcmd
+  lowstate_topic: rt/lowstate
+  subscriber_queue: 10
+command_limits:
+- 0.5
+- 0.3
+- 0.5
+commissioning:
   policy_pd_limit_nm: 14.0
-  action_step_limit: 0.64
-  joint_target_mode: clip_then_pd_projection
+  feedback_torque_limit_nm: 16.0
+fsm:
+  stand_duration: 5.0
+  stand_kp:
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  - 40.0
+  stand_kd:
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  - 1.0
+  damping_duration: 1.0
+  damping_kd: 3.0
+safety:
+  state_timeout: 0.1
+  max_loop_dt: 0.05
+  max_roll: 0.8
+  max_pitch: 0.8
+  max_joint_velocity: 25.0
+  max_action: 4.0
+  max_action_delta: 1.0
+  torque_limit_ratio: 0.8
+  policy_target_mode: clip
+  state_joint_margin: 0.02
+  joint_lower:
+  - -1.0472
+  - -1.5708
+  - -2.7227
+  - -1.0472
+  - -1.5708
+  - -2.7227
+  - -1.0472
+  - -0.5236
+  - -2.7227
+  - -1.0472
+  - -0.5236
+  - -2.7227
+  joint_upper:
+  - 1.0472
+  - 3.4907
+  - -0.83776
+  - 1.0472
+  - 3.4907
+  - -0.83776
+  - 1.0472
+  - 4.5379
+  - -0.83776
+  - 1.0472
+  - 4.5379
+  - -0.83776
+recording:
+  enabled: true
+  directory: '{LEGGED_GYM_ROOT_DIR}/logs/go2_him/real'
+  flush_interval: 50
 commands:
   lin_vel_x:
-  - -0.5
-  - 0.5
+  - -1.0
+  - 1.0
   lin_vel_y:
-  - -0.35
-  - 0.35
+  - -1.0
+  - 1.0
   ang_vel_yaw:
-  - -0.5
-  - 0.5
-training_profile: go2_him_retrain_v1
+  - -3.14
+  - 3.14
 training_source:
   repository: https://github.com/1170632760/HIMLOCO_GO2
   commit: 2e70bcf66d2a479add5a688ed4d78d863d166c11
-  task: go2_him_retrain
+  task: go2_him
+deployment_stage: requires_field_commissioning
+qualification_report: '{LEGGED_GYM_ROOT_DIR}/logs/go2_him/qualification.json'
+mujoco_runtime_config: '{LEGGED_GYM_ROOT_DIR}/deploy/deploy_mujoco/configs/go2_him_flat_bounded.yaml'
+hardware_deployment_blocked: true
+hardware_deployment_block_reason: Offline regression fixture; not a deployment candidate

@@ -1,0 +1,46 @@
+{
+  "author_reference": {
+    "repository": "https://github.com/escontra/AMP_for_hardware",
+    "commit": "bfb0dbdcf32bdf83a916790bddf193fffc7e79b8",
+    "files_reviewed": [
+      "rsl_rl/rsl_rl/algorithms/amp_discriminator.py",
+      "rsl_rl/rsl_rl/algorithms/amp_ppo.py",
+      "rsl_rl/rsl_rl/datasets/motion_loader.py"
+    ],
+    "license_file": "LICENSE.amp_for_hardware"
+  },
+  "him_amp_reference": {
+    "repository": "https://github.com/Lain-Ego0/HTDW4438-AMP",
+    "commit": "b687ceccc51546f5fb10e83da5d14385ec81f1fb",
+    "role": "integration reference only; no wholesale runner or dataset import"
+  },
+  "local_implementation": {
+    "feature_version": "go2_body_motion_43_v1",
+    "discriminator": "least-squares expert +1 / policy -1, zero-gradient penalty",
+    "differences": [
+      "Separate discriminator optimizer; existing HIMPPO implementation unchanged",
+      "Additive task reward plus AMP weight times control dt times style reward",
+      "Normalization updated from raw expert and policy features",
+      "Strict Go2 URDF, joint-order, feature, dataset provenance and checksum contracts",
+      "Reset-boundary capture in AMP environment subclass",
+      "Checkpoint includes discriminator, normalizer, optimizer, replay and RNG state"
+    ],
+    "data_bundled": false
+  },
+  "ready_go2_motion_source": {
+    "repository": "https://github.com/zihanwang0422/legged_rl_gym",
+    "commit": "9bbaf270019c04d803a13d563bd7fef85c5bbb6b",
+    "directory": "datasets/mocap_go2",
+    "adaptation": "Read original 61-column files, explicit PyBullet-to-policy leg order; no local retargeting, spatial scaling, time dilation or ground projection"
+  },
+  "multidirectional_go2_motion_source": {
+    "repository": "https://github.com/ak1raljl/amp_go2",
+    "commit": "14cb83f778b367d963d9907bc4334c69e6b85483",
+    "directory": "datasets/go2_motion",
+    "recording_model_repository": "https://github.com/ak1raljl/legged_control",
+    "recording_model_commit": "c1b0abd51fe315d37752306e31344ba4f94cc1f1",
+    "adaptation": "Source FL/FR/RL/RR joint trajectories, body velocities and timing unchanged; target URDF foot FK, constant per-clip geometry/foot-radius height offset, split at soft-limit violations.",
+    "data_license": "No separate explicit data license found; do not infer redistribution rights from controller code license.",
+    "data_bundled": false
+  }
+}

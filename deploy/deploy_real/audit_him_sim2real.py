@@ -126,7 +126,7 @@ def audit(config, path):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml')
+    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml')
     parser.add_argument('--log',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args();torch.set_num_threads(1)

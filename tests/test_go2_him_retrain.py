@@ -49,7 +49,7 @@ class HIMRetrainTest(unittest.TestCase):
                 torch.testing.assert_close(policy(history),expected,rtol=0,atol=0)
 
     def test_training_direct_actions_match_unrestricted_real_controller(self):
-        config=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        config=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         controller=Go2Controller(config,policy=lambda obs:torch.zeros((1,12)),action_step_mode='limit')
         for request in (np.full(12,4.),np.full(12,-4.),np.linspace(-3,3,12),np.zeros(12)):
             real=controller.process_policy_action(request)
@@ -59,7 +59,7 @@ class HIMRetrainTest(unittest.TestCase):
             controller.last_action=real
 
     def test_training_direct_target_matches_real_with_only_model_torque_cap(self):
-        config=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        config=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         controller=Go2Controller(config,policy=lambda obs:torch.zeros((1,12)))
         q=config.default_joint_pos.copy();dq=np.linspace(-2,2,12).astype(np.float32)
         action=np.full(12,4.,dtype=np.float32)

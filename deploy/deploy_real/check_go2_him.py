@@ -102,7 +102,7 @@ def check(config):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him.yaml')
+    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml')
     parser.add_argument('--output',type=Path,default=ROOT/'logs/go2_him/phase3_preflight/summary.json')
     args=parser.parse_args()
     report=check(Go2RealConfig.load(args.config,str(ROOT)))

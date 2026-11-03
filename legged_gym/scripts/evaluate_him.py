@@ -22,12 +22,12 @@ ROOT = Path(LEGGED_GYM_ROOT_DIR)
 
 def main():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--policy-path', type=Path, default=ROOT/'deploy/pre_train/go2_him/policy.pt')
+    parser.add_argument('--policy-path', type=Path, default=ROOT/'deploy/pre_train/go2_him_flat_bounded/policy.pt')
     parser.add_argument('--output-path', type=Path, default=ROOT/'logs/go2_him/phase2_validation/isaac.json')
     own, remaining = parser.parse_known_args()
     sys.argv = [sys.argv[0]] + remaining
     args = get_args()
-    args.task = 'go2_him_retrain' if args.task == 'go2_him_retrain' else 'go2_him'
+    args.task = args.task if args.task in ('go2_him', 'go2_him_retrain', 'go2_him_flat_bounded', 'go2_him_amp') else 'go2_him_flat_bounded'
     args.num_envs = args.num_envs or 64
     if args.num_envs < 8 or args.num_envs % 8:
         raise ValueError('Use a positive multiple of eight environments')

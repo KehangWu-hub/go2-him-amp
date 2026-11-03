@@ -52,7 +52,7 @@ def worker(source, out, target, resume_iteration=None):
     from legged_gym.utils.helpers import class_to_dict
     from legged_gym.envs.go2_him.export import export_him_policy
     from legged_gym.utils.deploy import export_deploy_config
-    from third_party.himloco_rsl_rl.rsl_rl.runners import HIMOnPolicyRunner
+    from legged_gym.utils.him_runner import get_him_runner_class
     torch.set_num_threads(1)
     parent = json.loads((source/'manifest.json').read_text())
     progress = json.loads((source/'progress.json').read_text())
@@ -63,10 +63,12 @@ def worker(source, out, target, resume_iteration=None):
     # Fail visibly rather than silently resume with a different training implementation.
     source_hashes = json.loads((source/'source_manifest.json').read_text())
     for name, digest in source_hashes.items():
-        if name.startswith(('legged_gym/envs/go2_him/', 'third_party/himloco_rsl_rl/')) or name == 'legged_gym/utils/terrain.py':
+        if name.startswith(('legged_gym/envs/go2_him/', 'legged_gym/envs/go2_him_amp/', 'third_party/himloco_rsl_rl/')) or name in ('legged_gym/utils/terrain.py', 'legged_gym/utils/him_runner.py'):
             if hashlib.sha256((ROOT/name).read_bytes()).hexdigest() != digest:
                 # Permit only the explicit new default budget on the flat-quality
                 # runner; the saved run configuration is restored below.
+                if name != 'legged_gym/envs/go2_him/candidate_config.py':
+                    raise ValueError(f'Training source changed: {name}')
                 old = ast.parse((source/'sources'/name).read_text())
                 new = ast.parse((ROOT/name).read_text())
                 def strip_budget(tree):
@@ -92,7 +94,7 @@ def worker(source, out, target, resume_iteration=None):
         expected = json.loads((source/'terrain.json').read_text())['height_sha256']
         if height_hash != expected:
             raise ValueError('Recreated terrain differs from the source run')
-    runner = HIMOnPolicyRunner(env, train, str(out), device=args.rl_device)
+    runner = get_him_runner_class(train)(env, train, str(out), device=args.rl_device)
     saved = torch.load(checkpoint, map_location=args.rl_device)
     infos = runner.load(str(checkpoint), load_optimizer=True)
     if runner.current_learning_iteration != start:

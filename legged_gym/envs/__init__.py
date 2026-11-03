@@ -33,3 +33,7 @@ task_registry.register('go2_him_flat_quality', Go2HIMFlatQualityRobot, Go2HIMFla
 
 from .go2_him.flat_bounded_config import Go2HIMFlatBoundedCfg, Go2HIMFlatBoundedCfgPPO
 task_registry.register('go2_him_flat_bounded', Go2HIMFlatQualityRobot, Go2HIMFlatBoundedCfg(), Go2HIMFlatBoundedCfgPPO())
+
+from .go2_him_amp.amp_config import Go2HIMAMPCfg, Go2HIMAMPCfgPPO
+from .go2_him_amp.amp_env import Go2HIMAMPRobot
+task_registry.register('go2_him_amp', Go2HIMAMPRobot, Go2HIMAMPCfg(), Go2HIMAMPCfgPPO())

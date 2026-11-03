@@ -29,8 +29,8 @@ QUALIFICATION_SOURCES = (
 def current_sources(config=None):
     root = Path(LEGGED_GYM_ROOT_DIR)
     names = list(QUALIFICATION_SOURCES)
-    package = Path(config.policy_path).parent if config is not None else root/'deploy/pre_train/go2_him'
-    runtime = resolve_path(config.data.get('mujoco_runtime_config', str(root/'deploy/deploy_mujoco/configs/go2_him.yaml')), str(root)) if config is not None else str(root/'deploy/deploy_mujoco/configs/go2_him.yaml')
+    package = Path(config.policy_path).parent if config is not None else root/'deploy/pre_train/go2_him_flat_bounded'
+    runtime = resolve_path(config.data.get('mujoco_runtime_config', str(root/'deploy/deploy_mujoco/configs/go2_him_flat_bounded.yaml')), str(root)) if config is not None else str(root/'deploy/deploy_mujoco/configs/go2_him_flat_bounded.yaml')
     names += [str((package/name).resolve().relative_to(root)) for name in ('deploy.yaml','provenance.json')]
     names.append(str(Path(runtime).resolve().relative_to(root)))
     return {name: sha256(root/name) for name in names}

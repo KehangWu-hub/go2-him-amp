@@ -24,9 +24,11 @@ def main():
     parser=argparse.ArgumentParser(add_help=False)
     parser.add_argument('--run-dir',type=Path,required=True)
     parser.add_argument('--background',action='store_true')
-    profiles = {'flat-bounded': 'go2_him_flat_bounded', 'direct': 'go2_him_retrain', 'upstream-flat': 'go2_him_upstream_flat',
+    profiles = {'him-amp': 'go2_him_amp', 'flat-bounded': 'go2_him_flat_bounded', 'direct': 'go2_him_retrain', 'upstream-flat': 'go2_him_upstream_flat',
                 'flat-quality': 'go2_him_flat_quality', 'candidate-flat': 'go2_him_candidate_flat', 'candidate-rough': 'go2_him_candidate_rough'}
     parser.add_argument('--profile',choices=tuple(profiles),default='direct')
+    parser.add_argument('--amp-manifest', type=Path)
+    parser.add_argument('--amp-weight', type=float)
     own,remaining=parser.parse_known_args()
     directory=own.run_dir.resolve()
     directory.mkdir(parents=True,exist_ok=True)
@@ -34,6 +36,8 @@ def main():
         raise ValueError('Refusing to overwrite a recorded training run')
     if own.background:
         command=[sys.executable,str(Path(__file__).resolve()),'--run-dir',str(directory),'--profile',own.profile,*remaining]
+        if own.amp_manifest is not None: command += ['--amp-manifest', str(own.amp_manifest.resolve())]
+        if own.amp_weight is not None: command += ['--amp-weight', str(own.amp_weight)]
         with (directory/'console.log').open('x') as stream:
             process=subprocess.Popen(command,cwd=str(ROOT),stdin=subprocess.DEVNULL,
                 stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
@@ -50,7 +54,7 @@ def main():
     from legged_gym.utils.helpers import class_to_dict
     from legged_gym.envs.go2_him.export import export_him_policy
     from legged_gym.utils.deploy import export_deploy_config
-    from third_party.himloco_rsl_rl.rsl_rl.runners import HIMOnPolicyRunner
+    from legged_gym.utils.him_runner import get_him_runner_class
     sys.argv=[sys.argv[0]]+remaining
     args=get_args()
     if args.resume:
@@ -58,11 +62,24 @@ def main():
     args.task=profiles[own.profile]
     torch.set_num_threads(1)
     cfg,training=task_registry.get_cfgs(args.task)
+    if own.profile != 'him-amp' and (own.amp_manifest is not None or own.amp_weight is not None):
+        raise ValueError('AMP options require --profile him-amp')
+    if own.profile == 'him-amp':
+        if own.amp_manifest is not None: training.amp.manifest = str(own.amp_manifest.resolve())
+        if own.amp_weight is not None: training.amp.weight = own.amp_weight
+        if not math.isfinite(training.amp.weight) or training.amp.weight < 0:
+            raise ValueError('AMP weight must be finite and nonnegative')
+        if training.amp.weight > 0:
+            from third_party.himloco_rsl_rl.rsl_rl.amp.features import Go2Kinematics
+            from third_party.himloco_rsl_rl.rsl_rl.amp.motion_loader import MotionDataset
+            MotionDataset(training.amp.manifest, Go2Kinematics(ROOT/'resources/robots/go2/urdf/go2.urdf'),
+                          cfg.sim.dt*cfg.control.decimation,
+                          allow_diagnostic=training.amp.allow_diagnostic_data)
     cfg.seed=args.seed if args.seed is not None else training.seed
     training.seed=cfg.seed
     if args.max_iterations is not None:training.runner.max_iterations=args.max_iterations
     if args.num_envs is not None:cfg.env.num_envs=args.num_envs
-    if own.profile in ('direct', 'flat-bounded'):
+    if own.profile in ('direct', 'flat-bounded', 'him-amp'):
         assert cfg.normalization.clip_actions==training.policy.action_bound==4.
         if own.profile == 'flat-bounded':
             assert training.runner.num_steps_per_env == 100
@@ -97,7 +114,8 @@ def main():
             'generator_sha256':hashlib.sha256((ROOT/'legged_gym/utils/terrain.py').read_bytes()).hexdigest(),
         })
     sources={}
-    for base in ('legged_gym/envs/go2_him','third_party/himloco_rsl_rl/rsl_rl'):
+    for base in ('legged_gym/envs/go2_him','third_party/himloco_rsl_rl/rsl_rl',
+                 *(['legged_gym/envs/go2_him_amp'] if own.profile == 'him-amp' else [])):
         for path in sorted((ROOT/base).rglob('*.py')):
             relative=path.relative_to(ROOT)
             target=directory/'sources'/relative
@@ -106,14 +124,19 @@ def main():
     for name in ('legged_gym/scripts/train_him_from_scratch.py','legged_gym/scripts/evaluate_him_candidate.py',
                  'deploy/deploy_mujoco/evaluate_him_checkpoint.py',
                  'legged_gym/envs/__init__.py',
-                 'legged_gym/utils/helpers.py','legged_gym/utils/deploy.py','legged_gym/utils/terrain.py',
+                 'legged_gym/utils/helpers.py','legged_gym/utils/him_runner.py','legged_gym/utils/deploy.py','legged_gym/utils/terrain.py',
                  'resources/robots/go2/urdf/go2.urdf'):
         path=ROOT/name;target=directory/'sources'/name;target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(path,target);sources[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+    if own.profile == 'him-amp':
+        for name in ('third_party/himloco_rsl_rl/rsl_rl/amp/upstream.json',
+                     'third_party/himloco_rsl_rl/rsl_rl/amp/LICENSE.amp_for_hardware'):
+            path=ROOT/name;target=directory/'sources'/name;target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(path,target);sources[name]=hashlib.sha256(path.read_bytes()).hexdigest()
     (directory/'source_manifest.json').write_text(json.dumps(sources,indent=2)+'\n')
     (directory/'workspace.patch').write_text(subprocess.check_output(
         ['git','diff','HEAD'],cwd=str(ROOT),encoding='utf-8'),encoding='utf-8')
-    runner=HIMOnPolicyRunner(env,config,str(directory),device=args.rl_device)
+    runner=get_him_runner_class(config)(env,config,str(directory),device=args.rl_device)
     initial_hash=hashlib.sha256(b''.join(p.detach().cpu().numpy().tobytes() for p in runner.alg.actor_critic.parameters())).hexdigest()
     manifest={'initialization':'fresh_random','checkpoint_loaded':None,'seed':actual_cfg.seed,
         'task':args.task,'num_envs':env.num_envs,'max_iterations':training.runner.max_iterations,
@@ -128,6 +151,11 @@ def main():
         'torch_version':torch.__version__,'gpu':torch.cuda.get_device_name(0),
         'pid':os.getpid(),'started_at':datetime.now().isoformat()}
     write_json(directory/'manifest.json',manifest)
+    if hasattr(runner, 'amp'):
+        manifest['amp'] = {'dataset_identity': runner.amp.data.identity, 'config': runner.amp.config,
+                           'dataset_manifest': runner.amp.data.metadata}
+        write_json(directory/'manifest.json', manifest)
+        write_json(directory/'amp_dataset.json', runner.amp.data.metadata)
     runner.save(str(directory/'model_0.pt'))
     exported=directory/'exported'
     export_deploy_config(env,str(exported/'params'),'go2')

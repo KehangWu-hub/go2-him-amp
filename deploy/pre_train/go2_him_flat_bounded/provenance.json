@@ -1,0 +1,16 @@
+{
+  "training_run": "logs/go2_him_flat_bounded/flat_bounded_fixed_v1_20261101_seed42",
+  "iteration": 3000,
+  "seed": 42,
+  "initialization": "fresh_random",
+  "checkpoint_sha256": "c44a505ee5e88b48c4b87a0beba372db9e6532650ef9a6e91c4c250e011d9607",
+  "policy_sha256": "aefab699f7ca4b0618588eba17d7c53c87fb753d52d34b63171959fd146245f9",
+  "deploy_config_sha256": "a1571c92700f19afe54a96e5552c9e8f87e97860aad7e2f2cfd47c03a6fb8306",
+  "training_profile": "go2_him_flat_bounded_fixed_v1",
+  "upstream": {
+    "repository": "https://github.com/1170632760/HIMLOCO_GO2",
+    "commit": "2e70bcf66d2a479add5a688ed4d78d863d166c11",
+    "task": "go2_him_flat_bounded"
+  },
+  "note": "Source identity only; this file is not a simulation or hardware qualification."
+}

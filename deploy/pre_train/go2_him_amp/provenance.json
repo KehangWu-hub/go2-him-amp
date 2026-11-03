@@ -1,0 +1,16 @@
+{
+  "training_run": "logs/go2_him_amp/native17_flat_v1_20261102_seed42",
+  "iteration": 3000,
+  "seed": 42,
+  "initialization": "fresh_random",
+  "checkpoint_sha256": "9767a884c5e02a098fc30b1773ccc8259d3586f9dd088ec68d9d7397c07b3071",
+  "policy_sha256": "9c6b00f257af8062563ddf0e7548f6a6679dbde49f8b46c4bba567a255428934",
+  "deploy_config_sha256": "eb3e8074f56db482c55161a2ee5342dc05435afd604509fe81f5efbea6ce9648",
+  "training_profile": "go2_him_amp_v1",
+  "upstream": {
+    "repository": "https://github.com/1170632760/HIMLOCO_GO2",
+    "commit": "2e70bcf66d2a479add5a688ed4d78d863d166c11",
+    "task": "go2_him_amp"
+  },
+  "note": "Source identity only; this file is not a simulation or hardware qualification."
+}

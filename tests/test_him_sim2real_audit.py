@@ -26,7 +26,7 @@ class HIMReplayAuditTest(unittest.TestCase):
             layer.bias.copy_(torch.linspace(-.1,.1,12))
         model=torch.jit.trace(layer.eval(),torch.zeros(1,270))
         path=self.root/'policy.pt';model.save(str(path))
-        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml',str(ROOT))
+        cfg=Go2RealConfig.load(ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml',str(ROOT))
         self.config=replace(cfg,policy_path=str(path))
         self.rows=[];previous=np.zeros(12,dtype=np.float32);frames=[]
         for i in range(2):

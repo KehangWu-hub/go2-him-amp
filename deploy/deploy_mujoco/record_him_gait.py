@@ -20,7 +20,7 @@ ROOT=Path(LEGGED_GYM_ROOT_DIR)
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml')
+    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--title',default='HIM：当前权重，软件运动限制关闭；仿真录像无音轨')
     args=parser.parse_args();torch.set_num_threads(1)

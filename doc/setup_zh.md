@@ -26,8 +26,8 @@
 ## 基础环境
 
 ```bash
-git clone https://github.com/KehangWu-hub/go2-him-loco.git
-cd go2-him-loco
+git clone https://github.com/KehangWu-hub/go2-him-amp.git
+cd go2-him-amp
 conda create -n unitree-rl python=3.8 -y
 conda activate unitree-rl
 

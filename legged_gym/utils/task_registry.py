@@ -119,9 +119,9 @@ class TaskRegistry():
         runner_name = train_cfg_dict["runner"].get("runner_class_name", "OnPolicyRunner")
         # Upstream HIM configs place this field at the top level.
         runner_name = train_cfg_dict.get("runner_class_name", runner_name)
-        if runner_name == "HIMOnPolicyRunner":
-            from third_party.himloco_rsl_rl.rsl_rl.runners import HIMOnPolicyRunner
-            runner_class = HIMOnPolicyRunner
+        if runner_name in ("HIMOnPolicyRunner", "HIMAMPOnPolicyRunner"):
+            from .him_runner import get_him_runner_class
+            runner_class = get_him_runner_class(train_cfg_dict)
         elif runner_name == "OnPolicyRunner":
             runner_class = OnPolicyRunner
         else:

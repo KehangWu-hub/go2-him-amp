@@ -22,7 +22,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--network',default='eno1')
     parser.add_argument('--duration',type=float,default=30.)
-    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml')
+    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml')
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
     if not args.network or args.network=='lo' or not 5<=args.duration<=60:

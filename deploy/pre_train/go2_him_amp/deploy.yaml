@@ -133,9 +133,7 @@ control:
   - 23.700000762939453
   - 23.700000762939453
   - 35.54999923706055
-  policy_pd_limit_nm: 14.0
-  action_step_limit: 0.64
-  joint_target_mode: clip_then_pd_projection
+  joint_target_mode: direct
 commands:
   lin_vel_x:
   - -0.5
@@ -146,8 +144,13 @@ commands:
   ang_vel_yaw:
   - -0.5
   - 0.5
-training_profile: go2_him_retrain_v1
+training_profile: go2_him_amp_v1
+hardware_deployment_blocked: true
+hardware_deployment_block_reason: "\u4E0A\u6E38\u914D\u65B9\u5BF9\u7167\u57FA\u7EBF\
+  \u4EC5\u7528\u4E8E\u79BB\u7EBF\u8BAD\u7EC3\uFF0C\u5C1A\u672A\u5B8C\u6210\u6B65\u6001\
+  \u4E0E\u90E8\u7F72\u9A8C\u8BC1"
+software_motion_limits: false
 training_source:
   repository: https://github.com/1170632760/HIMLOCO_GO2
   commit: 2e70bcf66d2a479add5a688ed4d78d863d166c11
-  task: go2_him_retrain
+  task: go2_him_amp

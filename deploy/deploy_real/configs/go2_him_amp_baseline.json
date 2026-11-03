@@ -1,0 +1,16 @@
+{
+  "name": "Go2 HIM+AMP 3000轮现场试机",
+  "policy_path": "deploy/pre_train/go2_him_amp/policy.pt",
+  "config_path": "deploy/deploy_real/configs/go2_him_amp.yaml",
+  "policy_sha256": "9c6b00f257af8062563ddf0e7548f6a6679dbde49f8b46c4bba567a255428934",
+  "config_sha256": "44ee0c8cc486d06e89d6d72291e4ba74efeac1db78c2f767854e915efc3406a5",
+  "physical_motion_validated": false,
+  "experimental_trial": true,
+  "operator_requested_scope": "Existing keyboard W/S/A/D at 0.3m/s; no Q/E or low-speed yaw test",
+  "known_limitations": [
+    "Low-speed pure yaw failed Isaac/MuJoCo; low-speed backward/right undertrack."
+  ],
+  "simulation_results": "logs/go2_him_amp/native17_flat_v1_20261102_seed42/effect_evaluation_20261103/comparison_summary.json",
+  "readiness": {},
+  "operator_feedback": "2026-11-03：用户首次现场试用反馈“效果还可以”；具体动作、时长和速度尚未量化，不等同于全部工况验收。"
+}

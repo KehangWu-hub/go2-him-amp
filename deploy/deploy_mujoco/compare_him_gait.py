@@ -15,7 +15,7 @@ from deploy.deploy_mujoco.gait_metrics import COMMANDS, LEGS, measure
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config', type=Path, default=ROOT/'deploy/deploy_real/configs/go2_him_fresh.yaml')
+    parser.add_argument('--config', type=Path, default=ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml')
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--keys', nargs='+', choices=tuple(COMMANDS), default=list(COMMANDS))

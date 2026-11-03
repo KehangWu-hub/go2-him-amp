@@ -52,6 +52,21 @@ python legged_gym/scripts/continue_him_training.py \
 
 基础HIM任务可通过 `python legged_gym/scripts/train.py --task go2_him --headless` 运行；原PPO使用 `--task go2`。
 
+### HIM+AMP
+
+AMP 使用独立任务 `go2_him_amp` 和 profile `him-amp`，原 HIM 的任务与模型选择方式不变。先按[数据格式](../../datasets/go2_amp/README.md)准备已校验的 Go2 参考动作，然后运行：
+
+```bash
+python legged_gym/scripts/train_him_from_scratch.py \
+  --profile him-amp --run-dir logs/go2_him_amp/my_run \
+  --amp-manifest datasets/go2_amp/manifest.json --amp-weight 1.0 \
+  --headless --num_envs 64 --max_iterations 3 --seed 42
+```
+
+`--amp-weight` 控制附加风格奖励，实际每步贡献为 `amp_weight × 控制周期 × 风格奖励`。环境数和轮数可按资源与实验需求设置；上例用于短程链路检查。参考数据须匹配当前 Go2 URDF、关节顺序和坐标定义，程序会核对来源、文件摘要和足端运动学。
+
+HIM+AMP 导出仍包含 Source Encoder 与 Actor，部署不加载判别器或专家数据。续训使用上面的 `continue_him_training.py`，会恢复 AMP 状态并核对动作数据身份。已有 HIM 权重只作为网络初始化时，须显式使用 Runner 的 `load(..., load_optimizer=False)`；这会重置迭代和 AMP 状态，不是完整续训。
+
 ## MuJoCo运行
 
 先用仓库附带的配套模型运行：

@@ -36,7 +36,7 @@ def simulate(config, label, command, protected=False, exit_key='c', original_dyn
         raise ValueError('Invalid actuator sensitivity parameters')
     model = mujoco.MjModel.from_xml_path(str(ROOT / 'resources/robots/go2/mjcf/scene_flat.xml'))
     model.opt.timestep = .001  # Two physics/PD substeps per 500Hz command publication.
-    runtime = load_runtime_config(resolve_path(config.data.get('mujoco_runtime_config', str(ROOT / 'deploy/deploy_mujoco/configs/go2_him.yaml')),str(ROOT)))
+    runtime = load_runtime_config(resolve_path(config.data.get('mujoco_runtime_config', str(ROOT / 'deploy/deploy_mujoco/configs/go2_him_flat_bounded.yaml')),str(ROOT)))
     if not original_dynamics:
         apply_model_overrides(model, runtime.get('model_overrides', {}))
     data = mujoco.MjData(model)
@@ -307,7 +307,7 @@ def qualify(directory, config, config_path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him.yaml')
+    parser.add_argument('--config',type=Path,default=ROOT/'deploy/deploy_real/configs/go2_him_flat_bounded.yaml')
     parser.add_argument('--output',type=Path,default=ROOT/'logs/go2_him/phase2_validation')
     parser.add_argument('--policy', type=Path, help='Offline candidate override; does not modify hardware configuration')
     parser.add_argument('--qualify', action='store_true', help='Verify and freeze the complete suite plus Isaac Gym reference')
