@@ -2,7 +2,7 @@
 
 面向 Unitree Go2，**自主设计并实现 HIM+AMP 融合框架**，将 HIM 状态估计与 AMP 动作先验接入统一训练流程，覆盖 **Isaac Gym训练 → MuJoCo仿真 → 真机键盘控制**。保留可独立运行的 HIM 基线，并兼容原 PPO 路线。
 
-[安装](doc/setup_zh.md) · [HIM训练与部署](deploy/deploy_real/README_GO2_HIM.zh.md) · [PPO真机控制](deploy/deploy_real/README_GO2.zh.md) · [预训练权重](release/go2_him_flat_bounded_3000/README.md)
+[安装](doc/setup_zh.md) · [训练与部署指南](doc/training_deployment_zh.md) · [预训练权重](release/go2_him_flat_bounded_3000/README.md)
 
 ## 自主设计的 HIM+AMP 融合框架
 
@@ -76,7 +76,7 @@ python legged_gym/scripts/train_him_from_scratch.py \
   --headless --num_envs 2048 --max_iterations 3000 --seed 42
 ```
 
-`flat-bounded`使用平地、有界动作和固定学习率，默认训练3000轮；`candidate-rough`和`candidate-flat`提供其他训练配置。训练记录和导出文件写入指定的运行目录。其他训练入口、续训和权重替换见[HIM指南](deploy/deploy_real/README_GO2_HIM.zh.md)。
+`flat-bounded`使用平地、有界动作和固定学习率，默认训练3000轮；`candidate-rough`和`candidate-flat`提供其他训练配置。训练记录和导出文件写入指定的运行目录。其他训练入口、续训和权重替换见[训练与部署指南](doc/training_deployment_zh.md)。
 
 ### 训练HIM+AMP
 
@@ -93,7 +93,7 @@ python legged_gym/scripts/train_him_from_scratch.py \
 
 ### 真机键盘控制
 
-从原厂站姿接管，具体连接与启动命令见[HIM指南](deploy/deploy_real/README_GO2_HIM.zh.md#真机键盘控制)或[PPO指南](deploy/deploy_real/README_GO2.zh.md)。
+从原厂站姿接管，具体连接与启动命令见[训练与部署指南](doc/training_deployment_zh.md#真机键盘控制)。
 
 | 按键 | 功能 |
 |---|---|

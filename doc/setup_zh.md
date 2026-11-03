@@ -1,6 +1,6 @@
 # 环境安装
 
-[项目首页](../README.md) · [HIM指南](../deploy/deploy_real/README_GO2_HIM.zh.md) · [PPO部署](../deploy/deploy_real/README_GO2.zh.md)
+[项目首页](../README.md) · [训练与部署指南](training_deployment_zh.md)
 
 所有命令均以仓库根目录为工作目录。训练使用NVIDIA GPU和Isaac Gym Preview 4；只运行MuJoCo或部署已有模型时，无需安装Isaac Gym。
 
@@ -87,4 +87,4 @@ python -m pip install 'git+https://github.com/unitreerobotics/unitree_sdk2_pytho
 python -c "from unitree_sdk2py.core.channel import ChannelFactoryInitialize; print('SDK2 ready')"
 ```
 
-随后按[HIM指南](../deploy/deploy_real/README_GO2_HIM.zh.md)或[PPO指南](../deploy/deploy_real/README_GO2.zh.md)运行。终端重新打开后，需要重新激活Conda环境并设置项目的 `PYTHONPATH`。
+随后按[训练与部署指南](training_deployment_zh.md)运行。终端重新打开后，需要重新激活Conda环境并设置项目的 `PYTHONPATH`。
