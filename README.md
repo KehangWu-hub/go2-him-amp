@@ -4,9 +4,9 @@
 
 [安装](doc/setup_zh.md) · [训练与部署指南](doc/training_deployment_zh.md) · [预训练权重](release/go2_him_flat_bounded_3000/README.md)
 
-## 自主设计的 HIM+AMP 融合框架
+## HIM+AMP 融合框架
 
-![本项目自主设计的HIM+AMP融合框架](doc/images/HIM_AMP.svg)
+![HIM+AMP 融合框架](doc/images/HIM_AMP.svg)
 
 融合架构与接口由本项目设计实现：保留 HIM 的状态估计和任务奖励，引入 AMP 判别器学习专家动作先验，通过附加风格奖励训练策略。HIM 和 HIM+AMP 分别使用独立任务、配置与权重，复用原 HIM 网络和 PPO 更新。
 
