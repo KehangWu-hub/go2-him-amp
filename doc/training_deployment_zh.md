@@ -155,7 +155,7 @@ python -m deploy.deploy_real.go2_keyboard \
   --speed-profile legacy --run
 ```
 
-HIM+AMP 当前作为独立试用策略，现场先使用 W/S/A/D 的 0.30 m/s 平移指令；低速原地转向仍待改进。
+HIM+AMP 已完成 Go2 真机部署，与 HIM 共用键盘控制入口。W/S/A/D 对应前后左右，legacy 模式的平移指令为 0.30 m/s。
 
 ### PPO首次配置与启动
 

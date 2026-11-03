@@ -1,6 +1,6 @@
 # go2-him-amp
 
-面向 Unitree Go2，**自主设计并实现 HIM+AMP 融合框架**，将 HIM 状态估计与 AMP 动作先验接入统一训练流程，覆盖 **Isaac Gym训练 → MuJoCo仿真 → 真机键盘控制**。保留可独立运行的 HIM 基线，并兼容原 PPO 路线。
+面向 Unitree Go2，**自主设计并实现 HIM+AMP 融合框架**，将 HIM 状态估计与 AMP 动作先验接入统一训练流程，已完成 **Isaac Gym训练 → MuJoCo仿真 → Go2真机键盘部署**。保留可独立运行的 HIM 基线，并兼容原 PPO 路线。
 
 [安装](doc/setup_zh.md) · [训练与部署指南](doc/training_deployment_zh.md) · [预训练权重](release/go2_him_flat_bounded_3000/README.md)
 
@@ -10,7 +10,7 @@
 
 融合架构与接口由本项目设计实现：保留 HIM 的状态估计和任务奖励，引入 AMP 判别器学习专家动作先验，通过附加风格奖励训练策略。HIM 和 HIM+AMP 分别使用独立任务、配置与权重，复用原 HIM 网络和 PPO 更新。
 
-部署模型仅包含 Source Encoder 与 Actor，判别器、Critic、Target Encoder 和专家数据仅用于训练。当前 HIM+AMP 面向平地运动，低速原地转向仍待改进。
+部署模型仅包含 Source Encoder 与 Actor，判别器、Critic、Target Encoder 和专家数据仅用于训练。HIM+AMP 已完成平地训练、仿真评估与 Go2 真机部署。
 
 ## 训练与真机演示
 
@@ -116,7 +116,7 @@ python -m deploy.deploy_real.go2_keyboard \
   --speed-profile legacy --run
 ```
 
-`eno1` 替换为实际有线网卡；当前 HIM+AMP 作为独立试用策略，首轮使用 W/S/A/D 的 0.30 m/s 平移指令。
+`eno1` 替换为实际有线网卡。W/S/A/D 对应前后左右，平移指令为 0.30 m/s。
 
 ## 项目结构
 
